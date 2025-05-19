@@ -9,8 +9,8 @@ variable "assume_role" {
   })
 
   default = {
-    role_arn    = "<YOUR_ROLE_ARN>"
-    external_id = "<YOUR_EXTERNAL_ID>"
+    role_arn    = "arn:aws:iam::654654554686:role/DevOpsNaNuvemRole-9db671b2-c6ce-460c-9eb0-f27e903d0f9a"
+    external_id = "f2ed091d-8d7d-46cb-be56-fb349d502cfb"
   }
 }
 
@@ -26,9 +26,9 @@ variable "remote_backend" {
   })
 
   default = {
-    bucket = "nsse-terraform-state-files"
+    bucket = "eks-express-terraform-state-files"
     state_locking = {
-      dynamodb_table_name = "nsse-terraform-state-locking"
+      dynamodb_table_name = "eks-express-terraform-state-locking"
       dynamodb_table_billing_mode = "PAY_PER_REQUEST"
       dynamodb_table_hash_key = "LockID"
       dynamodb_table_hash_key_type = "S"
@@ -43,7 +43,7 @@ variable "tags" {
   })
 
   default = {
-    Project     = "nsse",
+    Project     = "eks-express",
     Environment = "production"
   }
 }

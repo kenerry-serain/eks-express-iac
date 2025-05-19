@@ -18,11 +18,4 @@ terraform {
       version = "~> 5.0"
     }
   }
-
-  backend "s3" {
-    bucket         = "nsse-terraform-state-files"
-    key            = "backend/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "nsse-terraform-state-locking"
-  }
 }
