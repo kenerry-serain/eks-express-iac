@@ -6,11 +6,6 @@ resource "helm_release" "load_balancer_controller" {
   namespace  = "kube-system"
 
   set {
-    name  = "enableCertManager"
-    value = "true"
-  }
-
-  set {
     name  = "clusterName"
     value = aws_eks_cluster.this.id
   }
