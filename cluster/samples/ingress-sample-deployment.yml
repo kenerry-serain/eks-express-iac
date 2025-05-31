@@ -38,7 +38,6 @@ metadata:
     alb.ingress.kubernetes.io/load-balancer-name: eks-express-ingress
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
-    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: alb
   tls:
