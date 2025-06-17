@@ -33,17 +33,17 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: eks-express-ingress2
+  name: eks-express-ingress
   annotations:
     alb.ingress.kubernetes.io/load-balancer-name: eks-express-ingress
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    external-dns.alpha.kubernetes.io/hostname: eks.devopsnanuvem.com
 spec:
   ingressClassName: alb
   tls:
   - hosts:
     - eks.devopsnanuvem.com
-    secretName: letsencrypt-prod
   rules:
   - http:
       paths:

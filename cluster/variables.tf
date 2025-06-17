@@ -71,3 +71,8 @@ variable "eks_cluster" {
     }
   }
 }
+
+variable "custom_domain" {
+  type = string
+  default = "eks.devopsnanuvem.com"
+}
