@@ -35,5 +35,9 @@ resource "helm_release" "load_balancer_controller" {
     value = "aws-load-balancer-controller"
   }
 
-  depends_on = [aws_iam_role_policy_attachment.load_balancer_controller, aws_eks_node_group.this]
+  depends_on = [
+    aws_iam_role_policy_attachment.load_balancer_controller,
+    aws_eks_node_group.this,
+    aws_eks_access_policy_association.bash_user
+  ]
 }
