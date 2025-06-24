@@ -136,6 +136,8 @@ Para destruir os recursos provisionados, siga esta ordem:
 
 ```bash
 cd ./05-monitoring && terraform destroy -auto-approve
+cd ./04-security && terraform destroy -target=helm_release.external_dns
+cd ./04-security && terraform destroy -target=helm_release.load_balancer_controller
 cd ./04-security && terraform destroy -auto-approve
 cd ./03-karpenter-auto-scaling && terraform destroy -auto-approve
 cd ./02-eks-cluster && terraform destroy -auto-approve
