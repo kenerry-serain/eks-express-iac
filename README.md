@@ -1,8 +1,6 @@
-# Not So Simple Ecommerce IaC
+# EKS Express
 
-Este é o repositório utilizado dentro do curso para gerenciar toda infraestrutura do projeto `not-so-simple-ecommerce`. Este projeto é composto por diversas stacks na pasta `terraform`, visando provisionar toda infraestrutura necessária para subir a aplicação `not-so-simple-ecommerce` na AWS.
-
-Os playbooks Ansible vão se conectar nas máquinas provisionadas pelo Terraform através de um `inventário dinâmico` e criar um Cluster Kubernetes com kube-adm, Production Grade.
+Este é o repositório utilizado dentro do curso para gerenciar toda infraestrutura do projeto `eks-express`. Este projeto é composto por diversas stacks na pasta visando provisionar toda infraestrutura necessária para subir um Cluster EKS na AWS Production grade.
 
 Toda essa stack é desenvolvida do absoluto zero, aula por aula. Recomendo que você assista as aulas em paralelo ao estudo do código deste repositório na sua conta AWS para melhor entendimento do que está provisionando.
 
@@ -14,11 +12,11 @@ Toda essa stack é desenvolvida do absoluto zero, aula por aula. Recomendo que v
 
 Antes de realizar o deployment das stacks do Terraform, crie uma Role na sua conta AWS:
 
-**Atenção:** Substitua as variáveis `<YOUR_EXTERNAL_ID>`, `<YOUR_ACCOUNT>` e `<YOUR_USER>`.
+**Atenção:** Substitua as variáveis `<YOUR_ROLE>`, `<YOUR_ACCOUNT>` e `<YOUR_USER>`.
 
 ```bash
 aws iam create-role \
-    --role-name DevOpsNaNuvemRole \
+    --role-name DevOpsNaNuvemRole-9db671b2-c6ce-460c-9eb0-f27e903d0f9a \
     --assume-role-policy-document '{
         "Version": "2012-10-17",
         "Statement": [{
@@ -29,14 +27,14 @@ aws iam create-role \
             "Action": "sts:AssumeRole",
             "Condition": {
                 "StringEquals": {
-                    "sts:ExternalId": "<YOUR_EXTERNAL_ID>"
+                    "sts:ExternalId": "f2ed091d-8d7d-46cb-be56-fb349d502cfb"
                 }
             }
         }]
     }'
 ```
 
-📌 **Observação:** Para dúvidas, consulte as primeiras aulas do Módulo 3 (Setup AWS/Terraform).
+📌 **Observação:** Para dúvidas, consulte Aula 05-AWS Role e Terraform Authentication do Módulo 2.
 
 ---
 
@@ -46,26 +44,26 @@ Anexe permissões administrativas à role criada:
 
 ```bash
 aws iam attach-role-policy \
-    --role-name DevOpsNaNuvemRole \
+    --role-name DevOpsNaNuvemRole-9db671b2-c6ce-460c-9eb0-f27e903d0f9a \
     --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
 ```
 
 ---
 
-### 3. Substituição da String `<YOUR_ROLE_ARN>` nos Arquivos Terraform
+### 3. Substituição da String `arn:aws:iam::<YOUR_ACCOUNT>:role/DevOpsNaNuvemRole-9db671b2-c6ce-460c-9eb0-f27e903d0f9a` nos Arquivos Terraform
 
 #### 🐧 **(WSL/Linux)**
 
 ```bash
 find . -type f -name "*.tf" -exec sed -i \
-    's|<YOUR_ROLE_ARN>|arn:aws:iam::<YOUR_ACCOUNT>:role/DevOpsNaNuvemRole|g' {} +
+    's|arn:aws:iam::<YOUR_ACCOUNT>:role/DevOpsNaNuvemRole-9db671b2-c6ce-460c-9eb0-f27e903d0f9a|arn:aws:iam::<YOUR_ACCOUNT>:role/DevOpsNaNuvemRole|g' {} +
 ```
 
 #### 🍎 **(MacOS)**
 
 ```bash
 find . -type f -name "*.tf" -exec sed -i '' \
-    's|<YOUR_ROLE_ARN>|arn:aws:iam::<YOUR_ACCOUNT>:role/DevOpsNaNuvemRole|g' {} +
+    's|arn:aws:iam::<YOUR_ACCOUNT>:role/DevOpsNaNuvemRole-9db671b2-c6ce-460c-9eb0-f27e903d0f9a|arn:aws:iam::<YOUR_ACCOUNT>:role/DevOpsNaNuvemRole|g' {} +
 ```
 
 **Atenção:** Substitua `<YOUR_ACCOUNT>` pela sua conta AWS.
@@ -77,7 +75,7 @@ find . -type f -name "*.tf" -exec sed -i '' \
 A stack `backend` cria o bucket S3 e a DynamoDB para o Terraform state locking e remote backend:
 
 ```bash
-cd ./terraform/backend && terraform init && terraform apply -auto-approve
+cd ./00-backend && terraform init && terraform apply -auto-approve
 ```
 
 📌 **Observação:** O comando considera que você está na pasta root da aplicação.
@@ -89,111 +87,59 @@ cd ./terraform/backend && terraform init && terraform apply -auto-approve
 Crie a base de redes para as próximas stacks:
 
 ```bash
-cd ./terraform/networking && terraform init && terraform apply -auto-approve
+cd ./01-networking && terraform init && terraform apply -auto-approve
 ```
 
 ---
 
-### 6. Deploy da Stack `server`
+### 6. Deploy da Stack `eks-cluster`
 
-Crie a infraestrutura de instâncias EC2 e recursos para o Cluster Kubernetes:
+Crie um Cluster EKS, juntamente com alguns addons já instalados.
 
 ```bash
-cd ./terraform/server && terraform init && terraform apply -auto-approve
+cd ./02-eks-cluster && terraform init && terraform apply -auto-approve
 ```
-
+📌 **Observação:** Se necessário ajuste a quantidade de nós worker nodes desejados no arquivo variables.tf.
 ---
 
-### 7. Deploy da Stack `serverless`
+### 7. Deploy da Stack `karpenter-auto-scaling`
 
-Provisione filas, bancos de dados, buckets S3, Lambdas e outras dependências da aplicação:
+Torne o Cluster EKS dinâmico, adicionando e removendo nós dinamicamente utilizando Karpenter
 
 ```bash
-cd ./terraform/serverless && terraform init && terraform apply -auto-approve
+cd ./03-karpenter-auto-scaling && terraform init && terraform apply -auto-approve
 ```
-
-📌 **Observação:** Ao atualizar o código das Lambdas, execute o `tsc` para gerar o `build/index.js` (Módulo 05).
 
 ---
 
 ### 8. Deploy da Stack `site`
 
-Configure a infraestrutura de frontend:
+Habilite o Web Application Firewall para filtrar requisições do Application Load Balancer:
 
 ```bash
-cd ./terraform/site && terraform init && terraform apply -auto-approve
+cd ./04-security && terraform init && terraform apply -auto-approve
 ```
-
+📌 **Observação:** Lembre-se que a conexão do WAF ACL com o ALB é feito via annotation no ingress.
 ---
 
-### 9. Configuração das Credenciais AWS nos Arquivos YAML
+### 9. Deploy da Stack `monitoring`
 
-Substitua as variáveis `<YOUR_ACCESS_KEY>`, `<YOUR_SECRET_ACCESS_KEY>` e `<YOUR_AWS_PROFILE>` nos arquivos `.yml`:
+Configure o Amazon Prometheus e Grafana, para monitorar o Cluster EKS:
 
 ```bash
-find . -type f -name "*.yml" -exec sed -i '' \
-    's|<YOUR_ACCESS_KEY>|<YOUR_REAL_ACCESS_KEY>|g' {} + &&
-find . -type f -name "*.yml" -exec sed -i '' \
-    's|<YOUR_SECRET_ACCESS_KEY>|<YOUR_REAL_SECRET_ACCESS_KEY>|g' {} + &&
-find . -type f -name "*.yml" -exec sed -i '' \
-    's|<YOUR_AWS_PROFILE>|<YOUR_REAL_AWS_PROFILE>|g' {} +
+cd ./05-monitoring && terraform init && terraform apply -auto-approve
 ```
-
----
-
-### 10. Execução do Ansible para Criar o Cluster Kubernetes
-
-```bash
-export BECOME_PASSWORD="<YOUR_PASSWORD>"
-ansible-playbook -i production.aws_ec2.yml site.yml \
-    --extra-vars "ansible_become_password=$BECOME_PASSWORD"
-```
-
----
-
-### 11. Configuração Kube Config
-```bash
-aws ssm start-session --target <ANY_MASTER_INSTANCE_ID>
-sudo su
-cat /etc/kubernetes/admin.conf
-```
-
-Copie o resultado do cat, para o arquivo /etc/kubernetes/admin.conf na sua máquina local e lembre-se
-de substituir o DNS do NLB por 127.0.0.1 e também adicionar o apontamento do endereço 127.0.0.1 para o 
-DNS do NLB no arquivo hosts da sua máquina.
-
----
-
-### 12. Teste da Conexão com o Cluster Kubernetes
-
-Para executar os manifestos deste repositório no Cluster Kubernetes a partir da sua máquina local, 
-primeiramente é necessário abrir um túnel com algum nó master mapeando localmente o kube-apiserver que estará 
-rodando na porta 6443 do nó localmente na mesma porta. Edite o arquivo `/etc/kubernetes/admin.conf` do passo anterior
-na sua máquina, substituindo o DNS do NLB por `127.0.0.1` e adicione o apontamento do endereço 127.0.0.1 para o 
-DNS do NLB no arquivo hosts da sua máquina e só então, abra o túnel. 
-
-```bash
-aws ssm start-session \
-    --target <ANY_MASTER_INSTANCE_ID> \
-    --document-name AWS-StartPortForwardingSession \
-    --parameters 'portNumber=6443,localPortNumber=6443'
-export KUBECONFIG=/etc/kubernetes/admin.conf
-kubectl get nodes
-```
-
-📌 **Observação:** Se precisar revisar o processo, consulte a aula `Aula 33-Acesso Local e Port Forwarding` do módulo 06.
-
----
 
 ## 🗑️ Deletar Infraestrutura Criada
 
 Para destruir os recursos provisionados, siga esta ordem:
 
 ```bash
-cd ./terraform/site && terraform destroy -auto-approve
-cd ./terraform/serverless && terraform destroy -auto-approve
-cd ./terraform/server && terraform destroy -auto-approve
-cd ./terraform/networking && terraform destroy -auto-approve
+cd ./05-monitoring && terraform destroy -auto-approve
+cd ./04-security && terraform destroy -auto-approve
+cd ./03-karpenter-auto-scaling && terraform destroy -auto-approve
+cd ./02-eks-cluster && terraform destroy -auto-approve
+cd ./01-networking && terraform destroy -auto-approve
 ```
 
 **Atenção:** Mantenha a ordem ao destruir as stacks para evitar dependências quebradas.

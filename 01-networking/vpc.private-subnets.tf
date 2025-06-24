@@ -8,6 +8,7 @@ resource "aws_subnet" "private" {
 
   tags = {
     Name                     = "${var.vpc.name}-${var.vpc.private_subnets[count.index].name}",
-    "karpenter.sh/discovery" = var.vpc.eks_cluster_name_tag
+    Purpose                  = var.vpc.eks_cluster_name_tag,
+    "karpenter.sh/discovery" = var.vpc.eks_cluster_name_tag,
   }
 }

@@ -9,8 +9,8 @@ variable "assume_role" {
   })
 
   default = {
-    role_arn    = "arn:aws:iam::654654554686:role/DevOpsNaNuvemRole-9db671b2-c6ce-460c-9eb0-f27e903d0f9a"
-    external_id = "f2ed091d-8d7d-46cb-be56-fb349d502cfb"
+    role_arn    = "<YOUR_ROLE>"
+    external_id = "<YOUR_EXTERNAL_ID>"
   }
 }
 
@@ -48,6 +48,12 @@ variable "vpc" {
       availability_zone       = string
       map_public_ip_on_launch = bool
     }))
+    observability_subnets = list(object({
+      name                    = string
+      cidr_block              = string
+      availability_zone       = string
+      map_public_ip_on_launch = bool
+    }))
   })
 
   default = {
@@ -80,6 +86,18 @@ variable "vpc" {
       {
         name                    = "private-subnet-us-east-1b"
         cidr_block              = "10.0.0.96/27"
+        availability_zone       = "us-east-1b"
+        map_public_ip_on_launch = false
+    }]
+    observability_subnets = [{
+      name                    = "private-observability-subnet-us-east-1a"
+      cidr_block              = "10.0.0.128/27"
+      availability_zone       = "us-east-1a"
+      map_public_ip_on_launch = false
+      },
+      {
+        name                    = "private-observability-subnet-us-east-1b"
+        cidr_block              = "10.0.0.160/27"
         availability_zone       = "us-east-1b"
         map_public_ip_on_launch = false
     }]

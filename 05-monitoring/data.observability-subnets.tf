@@ -1,4 +1,4 @@
-data "aws_subnets" "private" {
+data "aws_subnets" "observability" {
   filter {
     name   = "tag:Project"
     values = ["eks-express"]
@@ -6,6 +6,6 @@ data "aws_subnets" "private" {
 
   filter {
     name   = "tag:Purpose"
-    values = ["eks-express-cluster"]
+    values = ["observability"]
   }
 }
