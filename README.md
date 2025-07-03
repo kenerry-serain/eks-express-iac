@@ -77,10 +77,8 @@ A stack `backend` cria o bucket S3 e a DynamoDB para o Terraform state locking e
 ```bash
 cd ./00-backend && terraform init && terraform apply -auto-approve
 ```
-
-📌 **Observação:** O comando considera que você está na pasta root da aplicação.
-
 ---
+📌 **Observação:** O comando considera que você está na pasta root da aplicação.
 
 ### 5. Deploy da Stack `networking`
 
