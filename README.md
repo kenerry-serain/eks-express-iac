@@ -99,6 +99,7 @@ cd ./02-eks-cluster && terraform init && terraform apply -auto-approve
 ```
 ---
 📌 **Observação:** Se necessário ajuste a quantidade de nós worker nodes desejados no arquivo variables.tf.
+Se lembre de ajustar o nome dos usuários no arquivo locals.tf para que você tenha acesso ao cluster via console e via bash.
 
 ### 7. Deploy da Stack `karpenter-auto-scaling`
 
@@ -134,10 +135,10 @@ Para destruir os recursos provisionados, siga esta ordem:
 
 ```bash
 cd ./05-monitoring && terraform destroy -auto-approve
-cd ./04-security && terraform destroy -target=helm_release.external_dns
-cd ./04-security && terraform destroy -target=helm_release.load_balancer_controller
 cd ./04-security && terraform destroy -auto-approve
 cd ./03-karpenter-auto-scaling && terraform destroy -auto-approve
+cd ./02-eks-cluster && terraform destroy -target=helm_release.external_dns -auto-approve
+cd ./02-eks-cluster && terraform destroy -target=helm_release.load_balancer_controller -auto-approve
 cd ./02-eks-cluster && terraform destroy -auto-approve
 cd ./01-networking && terraform destroy -auto-approve
 ```
