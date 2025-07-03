@@ -12,7 +12,7 @@ Toda essa stack é desenvolvida do absoluto zero, aula por aula. Recomendo que v
 
 Antes de realizar o deployment das stacks do Terraform, crie uma Role na sua conta AWS:
 
-**Atenção:** Substitua as variáveis `<YOUR_ROLE>`, `<YOUR_ACCOUNT>` e `<YOUR_USER>`.
+**Atenção:** Substitua as variáveis, `<YOUR_ACCOUNT>` e `<YOUR_USER>`.
 
 ```bash
 aws iam create-role \
@@ -99,8 +99,8 @@ Crie um Cluster EKS, juntamente com alguns addons já instalados.
 ```bash
 cd ./02-eks-cluster && terraform init && terraform apply -auto-approve
 ```
-📌 **Observação:** Se necessário ajuste a quantidade de nós worker nodes desejados no arquivo variables.tf.
 ---
+📌 **Observação:** Se necessário ajuste a quantidade de nós worker nodes desejados no arquivo variables.tf.
 
 ### 7. Deploy da Stack `karpenter-auto-scaling`
 
@@ -119,8 +119,8 @@ Habilite o Web Application Firewall para filtrar requisições do Application Lo
 ```bash
 cd ./04-security && terraform init && terraform apply -auto-approve
 ```
-📌 **Observação:** Lembre-se que a conexão do WAF ACL com o ALB é feito via annotation no ingress.
 ---
+📌 **Observação:** Lembre-se que a conexão do WAF ACL com o ALB é feito via annotation no ingress.
 
 ### 9. Deploy da Stack `monitoring`
 
